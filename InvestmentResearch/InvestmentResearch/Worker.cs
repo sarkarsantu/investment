@@ -8,16 +8,27 @@ namespace InvestmentResearch
     {
         private readonly ILogger<Worker> _logger;
         private readonly IPipelineService _pipeline;
+        private readonly IGitHubHelper _gitHubHelper;
 
-        public Worker(ILogger<Worker> logger, IPipelineService pipeline)
+        public Worker(ILogger<Worker> logger, IPipelineService pipeline, IGitHubHelper gitHubHelper)
         {
             _logger = logger;
             _pipeline = pipeline;
+            _gitHubHelper = gitHubHelper;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Worker started.");
+
+            // Test GitHub token on startup
+            _logger.LogInformation("Testing GitHub token permissions...");
+            bool tokenValid = await _gitHubHelper.TestGitHubTokenAsync();
+            if (!tokenValid)
+            {
+                _logger.LogError("GitHub token test failed! Please check your token configuration.");
+                return;
+            }
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -25,7 +36,7 @@ namespace InvestmentResearch
                 {
                     _logger.LogInformation("Running pipeline...");
 
-                    _pipeline.Run();
+                    _pipeline.RunAsync();
 
                     _logger.LogInformation("Pipeline completed.");
                 }

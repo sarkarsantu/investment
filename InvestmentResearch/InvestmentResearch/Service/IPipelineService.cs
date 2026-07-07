@@ -2,6 +2,6 @@
 {
     public interface IPipelineService
     {
-        void Run();
+        void RunAsync();
     }
 }

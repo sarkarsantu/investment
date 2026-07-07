@@ -19,5 +19,6 @@
         public string Defence { get; set; } = string.Empty;
         public string Battery { get; set; } = string.Empty;
         public List<Prompt> Prompts { get; set; } = new List<Prompt>();
+        public List<RssFeedConfig> RssFeeds { get; set; } = new List<RssFeedConfig>();
     }
 }

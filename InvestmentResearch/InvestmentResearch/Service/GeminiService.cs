@@ -24,6 +24,7 @@ namespace InvestmentResearch.Service
                 if(this._models == null || _models == new List<GenerativeModel>() || _models.Count == 0)
                 {
                     var googleAI = new GoogleAI(apiKey: _appSettings.GeminiApiKey1);
+                   
                     var model = googleAI.GenerativeModel(model: Mscc.GenerativeAI.Types.Model.Gemini25Flash);
                     if (_models == null)
                     {
@@ -68,6 +69,34 @@ namespace InvestmentResearch.Service
 
                 return _models.ToArray<GenerativeModel>();
             }
+        }
+
+        public async Task<string> RSSFeedAsync(string systemInstruction, string userData)
+        {
+            // 1. Configure the request container natively supporting strict JSON mode
+            var request = new GenerateContentRequest
+            {
+                Contents = new List<Content>
+                {
+                    new Content($"System: {systemInstruction}\n\nUser Data:\n{userData}")
+                },
+                GenerationConfig = new GenerationConfig
+                {
+                    ResponseMimeType = "application/json", // Forces a clean, parser-ready JSON string
+                    Temperature = 0.0
+                }
+            };
+
+            // 2. Fire request safely using your active model index
+            var response = await this.Models[this._generativeModelIndex].GenerateContent(request);
+
+            if (response == null || string.IsNullOrEmpty(response.Text))
+            {
+                return string.Empty;
+            }
+
+            // Since ResponseMimeType is application/json, response.Text is immediately a valid JSON string
+            return response.Text.Trim();
         }
 
         public async Task<CompanyResult> GenerateContent(string prompt)

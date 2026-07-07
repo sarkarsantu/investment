@@ -40,7 +40,7 @@ namespace InvestmentResearch.Repository
             Console.WriteLine($"  ✓ Report saved to: {outputFilePath}");
         }
 
-        public async Task<string> GetPrompt(string fileName, string sectorName = null!, string companyName = null!)
+        public async Task<string> GetPrompt(string fileName, string sectorName = null!, string companyName = null!, string InputData = null!)
         {
             string promptFilePath = Path.Combine(_promptFolder, fileName);
             if (File.Exists(promptFilePath))
@@ -57,6 +57,10 @@ namespace InvestmentResearch.Repository
                 if (sectorName != null)
                 {
                     prompt = prompt.Replace("{sectorName}", sectorName);
+                }
+                if(InputData != null)
+                {
+                    prompt = prompt.Replace("[Insert Your JSON Here]", InputData);
                 }
 
                 return prompt;

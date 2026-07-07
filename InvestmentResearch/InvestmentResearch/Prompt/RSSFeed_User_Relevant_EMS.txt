@@ -1,0 +1,15 @@
+﻿Follow these rules precisely:
+
+1. RELEVANCE CLASSIFICATION LOGIC:
+   - Positive Matching: Scan the "Title" and "Content" fields of each JSON object.
+   - Set True: Set "IsRelevant" to true if either field contains terms or context relating to electronics manufacturing, PCB assembly, semiconductors, chip plants, or OSAT facilities.
+   - Set False: Set "IsRelevant" to false if the item does not contain any electronics manufacturing context (e.g., general software, space satellites, unrelated companies, or general macroeconomic news). 
+   - Blank Field Handling: If the "Content" field is blank (""), judge relevance entirely based on the "Title" field.
+
+2. OUTPUT FORMAT RULES:
+   - Output ONLY the final, modified valid JSON array matching the exact incoming schema structure.
+   - CRITICAL: Do not wrap the output in markdown code fences like ```json or ```. Start the output directly with the character [ and end it directly with ].
+   - Do not append or prepend any conversational padding, greetings, markdown backticks, or post-analysis notes.
+
+3. INPUT DATA:
+[Insert Your JSON Here]

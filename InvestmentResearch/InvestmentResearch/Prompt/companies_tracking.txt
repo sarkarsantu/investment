@@ -9,6 +9,7 @@ Task:
 Find only news articles, exchange filings, corporate announcements, investor presentations, press releases, or regulatory disclosures related to {companyName}.
 Include only items published on {todayDate} or {yesterdayDate}.
 Do not include any information from any other date.
+Give me the news not summary of the news
 
 Filtering Rules:
 
