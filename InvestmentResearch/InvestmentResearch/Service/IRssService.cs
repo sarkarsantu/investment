@@ -4,6 +4,6 @@ using InvestmentResearch.Model;
 
 public interface IRssService
 {
-    List<string> GetLinks(string rssUrl, int maxItems);
-    List<Link> GetFeedItems(string rssUrl, int maxItems);
+    List<Link> GetFeedItems(string rssUrl, string theme, int maxItems);
+    List<Link> UpdateLinksBySLNo(List<Link> links);
 }

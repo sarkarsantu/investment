@@ -1,0 +1,17 @@
+﻿Follow these rules precisely:
+
+1. RELEVANCE CLASSIFICATION LOGIC:
+   - Positive Matching: Scan the "Title" and "Content" fields. Set "IsRelevant" to true if either field contains terms or direct business context relating to green or white hydrogen production, electrolyzers, green ammonia/methanol projects, hydrogen storage, or dedicated government incentive schemes like the National Green Hydrogen Mission (NGHM) / SIGHT program.
+   - Negative Constraints (EXCLUSIONS): You MUST set "IsRelevant" to false for any of the following, even if hydrogen keywords are mentioned:
+     * Traditional petroleum refining, standard gray ammonia/fertilizer news, or fossil-fuel hydrogen projects that do not specify green or white origins.
+     * General solar, wind, or power distribution grids unless they are explicitly tied to feeding a green hydrogen facility.
+     * Corporate executive hiring announcements, personal profiles, general market roundups, or unrelated macroeconomic news.
+   - Blank Field Handling: If the "Content" field is blank (""), judge relevance entirely based on the "Title" field using the rules above.
+
+2. OUTPUT FORMAT RULES:
+   - Output ONLY the final, modified valid JSON array matching the exact incoming schema structure.
+   - CRITICAL: Do not wrap the output in markdown code fences like ```json or ```. Start the output directly with the character [ and end it directly with ].
+   - Do not append or prepend any conversational padding, greetings, markdown backticks, or post-analysis notes.
+
+3. INPUT DATA:
+[Insert Your JSON Here]

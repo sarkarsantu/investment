@@ -1,56 +1,28 @@
 ﻿using InvestmentResearch.Data;
 using InvestmentResearch.Model;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using System.Text.Json;
 
 namespace InvestmentResearch.Service;
 
 public class RssFeedDatabaseService : IRssFeedDatabaseService
 {
     private readonly IDbContextFactory<RssFeedDbContext> _contextFactory;
-    private readonly AppSettings _appSettings;
-
-    public RssFeedDatabaseService(IDbContextFactory<RssFeedDbContext> contextFactory, IOptions<AppSettings> appSettings)
+    
+    public RssFeedDatabaseService(IDbContextFactory<RssFeedDbContext> contextFactory)
     {
         _contextFactory = contextFactory;
-        _appSettings = appSettings?.Value ?? throw new ArgumentNullException(nameof(appSettings));
+        
     }
 
     /// <summary>
-    /// Get all RSS feeds from the database (including skipped ones)
+    /// Get all RSS feeds from the database in real-time
     /// </summary>
     public async Task<List<RssFeedConfig>> GetAllFeedsAsync()
     {
-        using var context =await _contextFactory.CreateDbContextAsync();
-        var entities = context.RssFeeds.ToList();
-        return ConvertToRssFeedConfigs(entities);
-    }
-
-    /// <summary>
-    /// Seed the database with RSS feeds from AppConfig
-    /// </summary>
-    public async Task SeedFromAppConfigAsync()
-    {
         using var context = await _contextFactory.CreateDbContextAsync();
-        if (context.RssFeeds.Any())
-        {
-            return; // Database already seeded
-        }
-
-        foreach (var feed in _appSettings.RssFeeds ?? new List<RssFeedConfig>())
-        {
-            var entity = new RssFeedEntity
-            {
-                Name = feed.Name,
-                Theme = feed.Theme,
-                Url = feed.Url,
-            };
-            context.RssFeeds.Add(entity);
-        }
-
-        context.SaveChanges();
-        Console.WriteLine($"Seeded database with {_appSettings.RssFeeds?.Count ?? 0} RSS feeds from appsettings.json");
+        // AsNoTracking ensures fresh data is always fetched from the database
+        var entities = context.RssFeeds.AsNoTracking().ToList();
+        return ConvertToRssFeedConfigs(entities);
     }
 
     private List<RssFeedConfig> ConvertToRssFeedConfigs(List<RssFeedEntity> entities)

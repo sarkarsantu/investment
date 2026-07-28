@@ -19,16 +19,16 @@ namespace InvestmentResearch
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Worker started.");
+            //_logger.LogInformation("Worker started.");
 
-            // Test GitHub token on startup
-            _logger.LogInformation("Testing GitHub token permissions...");
-            bool tokenValid = await _gitHubHelper.TestGitHubTokenAsync();
-            if (!tokenValid)
-            {
-                _logger.LogError("GitHub token test failed! Please check your token configuration.");
-                return;
-            }
+            //// Test GitHub token on startup
+            //_logger.LogInformation("Testing GitHub token permissions...");
+            //bool tokenValid = await _gitHubHelper.TestGitHubTokenAsync();
+            //if (!tokenValid)
+            //{
+            //    _logger.LogError("GitHub token test failed! Please check your token configuration.");
+            //    return;
+            //}
 
             while (!stoppingToken.IsCancellationRequested)
             {

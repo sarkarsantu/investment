@@ -21,7 +21,6 @@ public class DatabaseInitializationService
         {
             using var context = _contextFactory.CreateDbContext();
             context.Database.EnsureCreated();
-            Console.WriteLine("RSS Feed database initialized successfully.");
         }
         catch (Exception ex)
         {

@@ -1,5 +1,6 @@
 ﻿using InvestmentResearch.Helper;
 using InvestmentResearch.Model;
+using Microsoft.Extensions.Options;
 using System.Web;
 using System.Xml;
 
@@ -7,61 +8,16 @@ namespace InvestmentResearch.Service;
 
 public class RssService : IRssService
 {
-    public List<string> GetLinks(string rssUrl, int maxItems)
+    private readonly AppSettings _appSettings;
+    private readonly IRSSLinkService _rSSLinkService;
+
+    public RssService(IRSSLinkService rSSLinkService,IOptions<AppSettings> appSettings)
     {
-        var links = new List<string>();
-
-        using var client = HttpClientHelper.CreateBrowserLikeClient();
-
-        // HttpClientHandler has AutomaticDecompression enabled, so this gets decompressed automatically
-        var xml = client.GetStringAsync(rssUrl).Result;
-
-        var doc = new XmlDocument();
-        doc.LoadXml(xml);
-
-        // Try RSS format first (//item/link)
-        var nodes = doc.SelectNodes("//item/link");
-
-        if (nodes.Count > 0)
-        {
-            // RSS format
-            foreach (XmlNode node in nodes)
-            {
-                var url = ExtractActualUrl(node.InnerText);
-                links.Add(url);
-                if (links.Count >= maxItems) break;
-            }
-        }
-        else
-        {
-            // Try Atom format (//entry/link with href attribute)
-            var nsManager = new XmlNamespaceManager(doc.NameTable);
-            nsManager.AddNamespace("atom", "http://www.w3.org/2005/Atom");
-
-            nodes = doc.SelectNodes("//atom:entry/atom:link[@rel='alternate']", nsManager);
-
-            if (nodes.Count == 0)
-            {
-                // Fallback: get first link element in each entry
-                nodes = doc.SelectNodes("//atom:entry/atom:link", nsManager);
-            }
-
-            foreach (XmlNode node in nodes)
-            {
-                var href = node.Attributes?["href"]?.Value;
-                if (!string.IsNullOrWhiteSpace(href))
-                {
-                    var url = ExtractActualUrl(href);
-                    links.Add(url);
-                    if (links.Count >= maxItems) break;
-                }
-            }
-        }
-
-        return links;
+        _appSettings = appSettings?.Value ?? throw new ArgumentNullException(nameof(appSettings));
+        _rSSLinkService = rSSLinkService;
     }
 
-    public List<Link> GetFeedItems(string rssUrl, int maxItems)
+    public List<Link> GetFeedItems(string rssUrl, string theme, int maxItems) 
     {
         var links = new List<Link>();
 
@@ -82,8 +38,13 @@ public class RssService : IRssService
             foreach (XmlNode node in nodes)
             {
                 var link = ParseRssItem(node);
-                if (link != null)
+                link.Domain = _rSSLinkService.ExtractDomain(link?.Href ?? string.Empty);
+                if (link != null 
+                    && IsPublishedTodayOrYesterday(link.Published) 
+                    && _appSettings.ExcludeDomain.IndexOf(link.Domain, StringComparison.OrdinalIgnoreCase) == -1)
                 {
+                    link.Domain = this._rSSLinkService.ExtractDomain(link.Href);
+                    link.Theme = theme;
                     links.Add(link);
                     if (links.Count >= maxItems) break;
                 }
@@ -100,8 +61,13 @@ public class RssService : IRssService
             foreach (XmlNode node in nodes)
             {
                 var link = ParseAtomEntry(node, nsManager);
-                if (link != null)
+                link.Domain = _rSSLinkService.ExtractDomain(link?.Href ?? string.Empty);
+                if (link != null 
+                    && IsPublishedTodayOrYesterday(link.Published) 
+                    && _appSettings.ExcludeDomain.IndexOf(link.Domain, StringComparison.OrdinalIgnoreCase) == -1)
                 {
+                    link.Domain = this._rSSLinkService.ExtractDomain(link.Href);
+                    link.Theme = theme;
                     links.Add(link);
                     if (links.Count >= maxItems) break;
                 }
@@ -118,7 +84,7 @@ public class RssService : IRssService
             var id = itemNode.SelectSingleNode("guid")?.InnerText ?? Guid.NewGuid().ToString();
             var title = itemNode.SelectSingleNode("title")?.InnerText ?? string.Empty;
             var href = itemNode.SelectSingleNode("link")?.InnerText ?? string.Empty;
-            var published = itemNode.SelectSingleNode("pubDate")?.InnerText ?? DateTime.Today.ToString("yyyy-MM-dd");
+            var published = itemNode.SelectSingleNode("pubDate")?.InnerText;
             var content = itemNode.SelectSingleNode("description")?.InnerText ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(href))
@@ -178,7 +144,7 @@ public class RssService : IRssService
                 href = linkNode?.Attributes?["href"]?.Value ?? string.Empty;
             }
             
-            var published = entryNode.SelectSingleNode("atom:published", nsManager)?.InnerText ?? DateTime.Today.ToString("yyyy-MM-dd");
+            var published = entryNode.SelectSingleNode("atom:published", nsManager)?.InnerText;
             var content = entryNode.SelectSingleNode("atom:content", nsManager)?.InnerText ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(href))
@@ -227,13 +193,18 @@ public class RssService : IRssService
         return url;
     }
 
-    private string NormalizeDate(string dateString)
+    private string NormalizeDate(string? dateString)
     {
         try
         {
-            if (DateTime.TryParse(dateString, out var date))
+            DateTime parsedDate;
+            if (!string.IsNullOrWhiteSpace(dateString) && DateTime.TryParse(dateString, out parsedDate))
             {
-                return date.ToString("yyyy-MM-dd");
+                return parsedDate.ToString("yyyy-MM-dd");
+            }
+            else
+            {
+                return DateTime.Today.ToString("yyyy-MM-dd");
             }
         }
         catch { }
@@ -270,5 +241,28 @@ public class RssService : IRssService
         html = System.Text.RegularExpressions.Regex.Replace(html, @"\s+", " ");
 
         return html.Trim();
+    }
+
+    private bool IsPublishedTodayOrYesterday(string publishedDate)
+    {
+        try
+        {
+            if (DateTime.TryParse(publishedDate, out var date))
+            {
+                var today = DateTime.Today;
+                var yesterday = today.AddDays(-1);
+                var dateOnly = date.Date;
+
+                return dateOnly == today || dateOnly == yesterday;
+            }
+        }
+        catch { }
+
+        return false;
+    }
+
+    public List<Link> UpdateLinksBySLNo(List<Link> links)
+    {
+        return this._rSSLinkService.UpdateLinksBySLNo(links);
     }
 }

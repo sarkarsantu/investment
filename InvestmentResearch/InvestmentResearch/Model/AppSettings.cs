@@ -20,5 +20,14 @@
         public string Battery { get; set; } = string.Empty;
         public List<Prompt> Prompts { get; set; } = new List<Prompt>();
         public List<RssFeedConfig> RssFeeds { get; set; } = new List<RssFeedConfig>();
+
+        // SMTP / Email settings
+        public string SmtpHost { get; set; } = string.Empty;
+        public int SmtpPort { get; set; } = 587;
+        public string SmtpUser { get; set; } = string.Empty;
+        public string SmtpPass { get; set; } = string.Empty;
+        public bool SmtpUseSsl { get; set; } = true;
+        public string FromEmail { get; set; } = string.Empty;
+        public string ExcludeDomain { get; set; }
     }
 }
