@@ -58,6 +58,7 @@ namespace InvestmentResearch.Service
                     Sector = sector.Key,
                     LinkCount = 0,
                     FinalLinkCount = 0,
+                    MaxRank = 0,
                     GoogleAlerts = new List<TrackByGoogleAlert>()
                 };
                 
@@ -79,7 +80,7 @@ namespace InvestmentResearch.Service
                             Console.WriteLine($"{sector.Key} :- {googleAlter.Name ?? string.Empty} finds {resultLinks.Count} links.");
                             trackByGoogleAlert.LinkCount = resultLinks.Count;
                             trackBySector.LinkCount += trackByGoogleAlert.LinkCount;
-                            (trackByGoogleAlert.FinalLinkCount, unknownDomain) = await ProcesRSSFeed(sector.Key, resultLinks, googleAlter.Name);
+                            (trackByGoogleAlert.FinalLinkCount, unknownDomain, trackBySector.MaxRank) = await ProcesRSSFeed(sector.Key, resultLinks, googleAlter.Name);
                             unknownDomainFound = unknownDomainFound || unknownDomain;
                             trackBySector.FinalLinkCount += trackByGoogleAlert.FinalLinkCount;
                         }
@@ -118,7 +119,7 @@ namespace InvestmentResearch.Service
                         trackBySector.GoogleAlerts.Add(trackByGoogleAlert);
                     }
 
-                    (trackBySector.FinalLinkCount, unknownDomain) = await ProcesRSSFeed(sector.Key, links, null);
+                    (trackBySector.FinalLinkCount, unknownDomain, trackBySector.MaxRank) = await ProcesRSSFeed(sector.Key, links, null);
                     unknownDomainFound = unknownDomainFound || unknownDomain;
                     this._trackBySectors.Add(trackBySector);
                     links = new();
@@ -129,12 +130,12 @@ namespace InvestmentResearch.Service
             await SendSummaryEmailAsync(unknownDomainFound);
         }
 
-        private async Task<(int, bool)> ProcesRSSFeed(string sector, List<Link> links, string? companyName = null)
+        private async Task<(int, bool, int)> ProcesRSSFeed(string sector, List<Link> links, string? companyName = null)
         {
             if (links.Count == 0)
             {
                 Console.WriteLine($"{sector} :- {companyName ?? string.Empty} does not find any links.");
-                return (links.Count, false);
+                return (links.Count, false, 0);
             }
             bool unknownDomainFound = links.Any(link => string.IsNullOrWhiteSpace(link.Domain) || link.Domain.ToLower().IndexOf("unknown") != -1);
             links = this._feedProcessorService.UpdateLinksBySLNo(links);
@@ -148,13 +149,13 @@ namespace InvestmentResearch.Service
                     links);
             if (modifiedLinks == null || modifiedLinks?.Count == 0)
             {
-                return (modifiedLinks?.Count ?? 0, unknownDomainFound);
+                return (modifiedLinks?.Count ?? 0, unknownDomainFound, 0);
             }
 
             var relevanceLink = modifiedLinks?.Where(p => p.IsRelevant = true);
             if (relevanceLink == null || relevanceLink.Count() == 0)
             {
-                return (relevanceLink?.Count() ?? 0, unknownDomainFound);
+                return (relevanceLink?.Count() ?? 0, unknownDomainFound, 0);
             }
             Console.WriteLine($"{sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector : companyName)} is marking duplicate feed links.");
             var relevanceLinkWithRank = await FilterModifiedLinks(
@@ -167,10 +168,10 @@ namespace InvestmentResearch.Service
             var finalLinks = relevanceLinkWithRank?.OrderBy(p => p.Rank);
             if (finalLinks == null || finalLinks.Count() == 0)
             {
-                return (finalLinks?.Count() ?? 0, unknownDomainFound);
+                return (finalLinks?.Count() ?? 0, unknownDomainFound, 0);
             }
+            int maxRank = finalLinks.Max(p => p.Rank);
 
-            
             // Instead of saving an HTML file, send emails with links (20 per email)
             var finalLinksList = finalLinks.ToList();
 
@@ -185,7 +186,7 @@ namespace InvestmentResearch.Service
                 // Generate HTML body using the same format as GenerateRSSFeedHtml
                 string emailBody = HtmlGenerator.GenerateRSSFeedHtml(emailLinks, sector);
 
-                string subject = $"RSS Feed - {(string.IsNullOrWhiteSpace(companyName) ? sector : companyName)} - {DateTime.Now:yyyy-MM-dd} (Part {emailIndex + 1} of {totalEmails})";
+                string subject = $"{(string.IsNullOrWhiteSpace(companyName) ? sector : companyName)} - {DateTime.Now:yyyy-MM-dd} (Part {emailIndex + 1} of {totalEmails} Total links - {emailLinks.Count})";
 
                 try
                 {
@@ -199,7 +200,7 @@ namespace InvestmentResearch.Service
             }
 
             Console.WriteLine($"{sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector : companyName)} completes.");
-            return (finalLinksList?.Count ?? 0, unknownDomainFound);
+            return (finalLinksList?.Count ?? 0, unknownDomainFound, maxRank);
         }
 
         private async Task<List<Link>?> FilterModifiedLinks(string sectorName, string? companyName, string systemInstructionfileName, string userDatafileName, List<Link> links)
@@ -217,7 +218,7 @@ namespace InvestmentResearch.Service
             catch (JsonException ex)
             {
                 Console.WriteLine($"JSON deserialization failed. Payload: {jsonPayload.Substring(0, Math.Min(200, jsonPayload.Length))}...");
-                throw;
+                return links;
             }
         }
 

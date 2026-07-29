@@ -15,6 +15,7 @@ namespace InvestmentResearch.Service
             _domains.Add(new Domain { Name = "timesofindia", ReadableName = "Times of India", Rank = ++i });
             _domains.Add(new Domain { Name = "reuters", ReadableName = "Reuters", Rank = ++i });
             _domains.Add(new Domain { Name = "economictimes", ReadableName = "Economic Times", Rank = ++i });
+            _domains.Add(new Domain { Name = "ndtvprofit.com", ReadableName = "NDTV Profit", Rank = ++i });
             _domains.Add(new Domain { Name = "cnbc", ReadableName = "CNBC", Rank = ++i });
             _domains.Add(new Domain { Name = "cnbctv18", ReadableName = "CNBC-TV18", Rank = ++i });
             _domains.Add(new Domain { Name = "ddindia.co.in", ReadableName = "DD India", Rank = ++i });
@@ -41,6 +42,7 @@ namespace InvestmentResearch.Service
             _domains.Add(new Domain { Name = "businesstoday.in", ReadableName = "Business Today", Rank = ++i });
             _domains.Add(new Domain { Name = "hindustantimes.com", ReadableName = "Hindustan Times", Rank = ++i });
             _domains.Add(new Domain { Name = "saurenergy.com", ReadableName = "Saur Energy", Rank = ++i });
+            _domains.Add(new Domain { Name = "youtube.com", ReadableName = "YouTube", Rank = ++i });
             _domains.Add(new Domain { Name = "mondaq.com", ReadableName = "Mondaq", Rank = ++i });
             _domains.Add(new Domain { Name = "indianpsu.com", ReadableName = "Indian PSU", Rank = ++i });
             _domains.Add(new Domain { Name = "bloomberg", ReadableName = "Bloomberg", Rank = ++i });
@@ -149,9 +151,23 @@ namespace InvestmentResearch.Service
             _domains.Add(new Domain { Name = "telecomlead.com", ReadableName = "Telecom Lead", Rank = ++i });
             _domains.Add(new Domain { Name = "cobrapost.com", ReadableName = "Cobrapost", Rank = ++i });
             _domains.Add(new Domain { Name = "lawbeat.in", ReadableName = "Law Beat", Rank = ++i });
-            
             _domains.Add(new Domain { Name = "zeebiz.com", ReadableName = "Zee Biz", Rank = ++i });
             _domains.Add(new Domain { Name = "analyticsinsight.net", ReadableName = "Analytics Insight", Rank = ++i });
+            _domains.Add(new Domain { Name = "sahi.com", ReadableName = "Sahi", Rank = ++i });
+            _domains.Add(new Domain { Name = "goodreturns.in", ReadableName = "Good Returns", Rank = ++i });
+            _domains.Add(new Domain { Name = "informistmedia.com", ReadableName = "Informist Media", Rank = ++i });
+            _domains.Add(new Domain { Name = "smestreet.in", ReadableName = "SME Street", Rank = ++i });
+            _domains.Add(new Domain { Name = "frontierindia.com", ReadableName = "Frontier India", Rank = ++i });
+            _domains.Add(new Domain { Name = "pharmabiz.com", ReadableName = "Pharma Biz", Rank = ++i });
+            _domains.Add(new Domain { Name = "the - aiff.com", ReadableName = "The AIFF", Rank = ++i });
+            _domains.Add(new Domain { Name = "defence.newsd.in", ReadableName = "Defence News D", Rank = ++i });
+            _domains.Add(new Domain { Name = "currentaffairs.adda247.com", ReadableName = "Current Affairs Adda247", Rank = ++i });
+            _domains.Add(new Domain { Name = "frontline.thehindu.com", ReadableName = "Frontline The Hindu", Rank = ++i });
+            _domains.Add(new Domain { Name = "alchempro.com", ReadableName = "Alchempro", Rank = ++i });
+            _domains.Add(new Domain { Name = "kashmirvision.in", ReadableName = "Kashmir Vision", Rank = ++i });
+            _domains.Add(new Domain { Name = "bangaloremirror.indiatimes.com", ReadableName = "Bangalore Mirror", Rank = ++i });
+            _domains.Add(new Domain { Name = "lovin.co", ReadableName = "Lovin", Rank = ++i });
+            _domains.Add(new Domain { Name = "knocksense.com", ReadableName = "Knocksense", Rank = ++i });
         }
 
         /// <summary>

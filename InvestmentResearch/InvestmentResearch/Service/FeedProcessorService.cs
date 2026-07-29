@@ -20,7 +20,7 @@ public class FeedProcessorService : IFeedProcessorService
     /// </summary>
     public List<Link> ProcessFeed(RssFeedConfig feed, int maxArticlesPerFeed)
     {
-        return FetchLinksFromFeed(feed.Url, feed.Theme, maxArticlesPerFeed);
+        return FetchLinksFromFeed(feed.Url, feed.Name, maxArticlesPerFeed);
     }
 
     public List<Link> UpdateLinksBySLNo(List<Link> links)
@@ -31,11 +31,11 @@ public class FeedProcessorService : IFeedProcessorService
     /// <summary>
     /// Fetches links from an RSS feed.
     /// </summary>
-    private List<Link> FetchLinksFromFeed(string feedUrl, string theme, int maxArticles)
+    private List<Link> FetchLinksFromFeed(string feedUrl, string alert, int maxArticles)
     {
         try
         {
-            return _rssService.GetFeedItems(feedUrl, theme, maxArticles);
+            return _rssService.GetFeedItems(feedUrl, alert, maxArticles);
         }
         catch (Exception ex)
         {

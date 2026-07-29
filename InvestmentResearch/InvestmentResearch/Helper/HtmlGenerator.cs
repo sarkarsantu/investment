@@ -232,11 +232,13 @@ public class HtmlGenerator
 
         int totalInitialLinks = 0;
         int totalFinalLinks = 0;
+        int totalMaxRank = 0;
 
         foreach (var sector in trackBySectors)
         {
             totalInitialLinks += sector.LinkCount;
             totalFinalLinks += sector.FinalLinkCount;
+            totalMaxRank += sector.MaxRank;
 
             html.AppendLine($"<div class=\"sector\">");
             html.AppendLine($"    <h2>{System.Web.HttpUtility.HtmlEncode(sector.Sector)}</h2>");
@@ -248,6 +250,10 @@ public class HtmlGenerator
             html.AppendLine($"        <div class=\"stat\">");
             html.AppendLine($"            <div class=\"stat-label\">Final Links</div>");
             html.AppendLine($"            <div class=\"stat-value\">{sector.FinalLinkCount}</div>");
+            html.AppendLine($"        </div>");
+            html.AppendLine($"        <div class=\"stat\">");
+            html.AppendLine($"            <div class=\"stat-label\">Max Rank</div>");
+            html.AppendLine($"            <div class=\"stat-value\">{sector.MaxRank}</div>");
             html.AppendLine($"        </div>");
             html.AppendLine($"    </div>");
 
@@ -282,6 +288,10 @@ public class HtmlGenerator
         html.AppendLine($"        <div class=\"stat\">");
         html.AppendLine($"            <div class=\"stat-label\">Total Final Links</div>");
         html.AppendLine($"            <div class=\"stat-value\">{totalFinalLinks}</div>");
+        html.AppendLine($"        </div>");
+        html.AppendLine($"        <div class=\"stat\">");
+        html.AppendLine($"            <div class=\"stat-label\">Total Max Rank</div>");
+        html.AppendLine($"            <div class=\"stat-value\">{totalMaxRank}</div>");
         html.AppendLine($"        </div>");
         html.AppendLine($"    </div>");
         html.AppendLine($"</div>");

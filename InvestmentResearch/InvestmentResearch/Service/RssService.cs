@@ -17,7 +17,7 @@ public class RssService : IRssService
         _rSSLinkService = rSSLinkService;
     }
 
-    public List<Link> GetFeedItems(string rssUrl, string theme, int maxItems) 
+    public List<Link> GetFeedItems(string rssUrl, string alert, int maxItems) 
     {
         var links = new List<Link>();
 
@@ -44,7 +44,7 @@ public class RssService : IRssService
                     && _appSettings.ExcludeDomain.IndexOf(link.Domain, StringComparison.OrdinalIgnoreCase) == -1)
                 {
                     link.Domain = this._rSSLinkService.ExtractDomain(link.Href);
-                    link.Theme = theme;
+                    link.Theme = alert;
                     links.Add(link);
                     if (links.Count >= maxItems) break;
                 }
@@ -67,7 +67,7 @@ public class RssService : IRssService
                     && _appSettings.ExcludeDomain.IndexOf(link.Domain, StringComparison.OrdinalIgnoreCase) == -1)
                 {
                     link.Domain = this._rSSLinkService.ExtractDomain(link.Href);
-                    link.Theme = theme;
+                    link.Theme = alert;
                     links.Add(link);
                     if (links.Count >= maxItems) break;
                 }
