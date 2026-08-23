@@ -62,6 +62,8 @@ public class HtmlGenerator
     public static string GenerateRSSFeedHtml(List<Link> links, string sectorName)
     {
         var html = new System.Text.StringBuilder();
+        var strikeTagStart = string.Empty;
+        var strikeTagEnd = string.Empty;
 
         // Get unique ranks sorted to assign alternating colors
         var uniqueRanks = links.Select(l => l.Rank).Distinct().OrderBy(r => r).ToList();
@@ -108,10 +110,20 @@ public class HtmlGenerator
         foreach (var link in orderedLinks)
         {
             var bgClass = rankBackgroundMap[link.Rank];
+            if (!link.IsRelevant)
+            {
+                strikeTagStart = "<strike>";
+                strikeTagEnd = "</strike>";
+            }
+            else
+            {
+                strikeTagStart = string.Empty;
+                strikeTagEnd = string.Empty;
+            }
 
             html.AppendLine($"<div class=\"link-item {bgClass}\")\">");
             html.AppendLine("<div class=\"link-header\">");
-            html.AppendLine($"<div class=\"link-title\"><a href=\"{System.Web.HttpUtility.HtmlAttributeEncode(link.Href)}\" '_blank'>#Rank - {link.Rank}. {System.Web.HttpUtility.HtmlEncode(link.Title)}<a></div>");
+            html.AppendLine($"<div class=\"link-title\"><a href=\"{System.Web.HttpUtility.HtmlAttributeEncode(link.Href)}\" '_blank'>#Rank - {link.Rank}. {strikeTagStart}{System.Web.HttpUtility.HtmlEncode(link.Title)}{strikeTagEnd}<a></div>");
             html.AppendLine("</div>");
             html.AppendLine("<div class=\"link-footer\">");
             html.AppendLine($"<span {(link.SlNo <= 5 ? "style=\"color:red\"" : "")} class=\"domain-badge\">{System.Web.HttpUtility.HtmlEncode(link.Domain)} - </span>");
@@ -121,7 +133,7 @@ public class HtmlGenerator
             {
                 html.AppendLine($"<div {(IsHotContent(link.Theme) ? "style=\"color:red\"" : "")} class=\"link-content\">{System.Web.HttpUtility.HtmlEncode(link.Content)}</div>");
             }
-            
+
             html.AppendLine("</div>");
         }
 
@@ -199,7 +211,7 @@ public class HtmlGenerator
         return backgroundMap;
     }
 
-    public static string GenerateSummarySectorHtml(List<TrackBySector> trackBySectors, bool unknownDomainFound)
+    public static string GenerateSummarySectorHtml(List<TrackBySector> trackBySectors, string UnknownDomains, List<string> logs)
     {
         var html = new System.Text.StringBuilder();
 
@@ -296,11 +308,21 @@ public class HtmlGenerator
         html.AppendLine($"    </div>");
         html.AppendLine($"</div>");
 
+        html.AppendLine($"<div class=\"sector\" style=\"background-color: #e8f4f8;\">");
+        html.AppendLine($"    <h2 style=\"color: #17a2b8;\">Logs</h2>");
+        html.AppendLine($"    <div class=\"sector-stats\">");
+        foreach (var log in logs)
+        {
+            html.AppendLine($"        <div class=\"stat\">");
+            html.AppendLine($"            <div class=\"stat-value\">{log}</div>");
+            html.AppendLine($"        </div>");
+        }
+        html.AppendLine($"</div>");
         html.AppendLine($"</div>");
         html.AppendLine($"<div class=\"timestamp\">This is an automated email from Investment Research System</div>");
-        if(unknownDomainFound)
+        if (!string.IsNullOrEmpty(UnknownDomains))
         {
-            html.AppendLine($"<div class=\"timestamp\" style=\"color: red;\">⚠️ Warning: Some links have unknown domains. Please check the details.</div>");
+            html.AppendLine($"<div class=\"timestamp\" style=\"color: red;\">⚠️ Warning: Some links have unknown domains. Please check the details.{UnknownDomains}</div>");
         }
         html.AppendLine("</body>");
         html.AppendLine("</html>");

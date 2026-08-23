@@ -14,6 +14,10 @@ public class FeedProcessorService : IFeedProcessorService
     {
         _rssService = rssService;
     }
+    public string GetUnknownDomains()
+    {
+        return _rssService.GetUnknownDomains();
+    }
 
     /// <summary>
     /// Processes a single RSS feed, crawling all articles.

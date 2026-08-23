@@ -73,30 +73,38 @@ namespace InvestmentResearch.Service
 
         public async Task<string> RSSFeedAsync(string systemInstruction, string userData)
         {
-            // 1. Configure the request container natively supporting strict JSON mode
-            var request = new GenerateContentRequest
+            try 
             {
-                Contents = new List<Content>
+                // 1. Configure the request container natively supporting strict JSON mode
+                var request = new GenerateContentRequest
+                {
+                    Contents = new List<Content>
                 {
                     new Content($"System: {systemInstruction}\n\nUser Data:\n{userData}")
                 },
-                GenerationConfig = new GenerationConfig
+                    GenerationConfig = new GenerationConfig
+                    {
+                        ResponseMimeType = "application/json", // Forces a clean, parser-ready JSON string
+                        Temperature = 0.0
+                    }
+                };
+
+                // 2. Fire request safely using your active model index
+                var response = await this.Models[this._generativeModelIndex].GenerateContent(request);
+
+                if (response == null || string.IsNullOrEmpty(response.Text))
                 {
-                    ResponseMimeType = "application/json", // Forces a clean, parser-ready JSON string
-                    Temperature = 0.0
+                    return string.Empty;
                 }
-            };
 
-            // 2. Fire request safely using your active model index
-            var response = await this.Models[this._generativeModelIndex].GenerateContent(request);
-
-            if (response == null || string.IsNullOrEmpty(response.Text))
+                // Since ResponseMimeType is application/json, response.Text is immediately a valid JSON string
+                return response.Text.Trim();
+            }
+            catch (Exception ex)
             {
+                Console.WriteLine($"Error generating content: {ex.Message}");
                 return string.Empty;
             }
-
-            // Since ResponseMimeType is application/json, response.Text is immediately a valid JSON string
-            return response.Text.Trim();
         }
 
         public async Task<CompanyResult> GenerateContent(string prompt)

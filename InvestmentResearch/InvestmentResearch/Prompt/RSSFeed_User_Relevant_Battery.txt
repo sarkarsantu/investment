@@ -1,12 +1,11 @@
 ﻿Follow these rules precisely:
 
 1. RELEVANCE CLASSIFICATION LOGIC:
-   - Positive Matching: Scan the "Title" and "Content" fields. Set "IsRelevant" to true if either field contains terms or context relating to battery manufacturing facilities, gigafactories, cell chemistries, grid-scale storage (BESS), or policy schemes like ACC PLI and VGF.
+   - Positive Matching: Scan the "Title" field. Set "IsRelevant" to true if either field contains terms or context relating to battery manufacturing facilities, gigafactories, cell chemistries, grid-scale storage (BESS), or policy schemes like ACC PLI and VGF.
    - Negative Constraints (EXCLUSIONS): You MUST set "IsRelevant" to false for any of the following, even if a battery keyword is mentioned:
      * Consumer EV reviews, electric car launch events, vehicle dealership openings, or retail automotive sales data (e.g., "Tata Nexon EV sales up 10%").
      * Generic corporate profiles, broad executive career changes, or personal wealth updates.
      * Consumer electronics like smartphone or laptop battery life reviews.
-   - Blank Field Handling: If the "Content" field is blank (""), judge relevance entirely based on the "Title" field using the rules above.
 
 2. OUTPUT FORMAT RULES:
    - Output ONLY the final, modified valid JSON array matching the exact incoming schema structure.

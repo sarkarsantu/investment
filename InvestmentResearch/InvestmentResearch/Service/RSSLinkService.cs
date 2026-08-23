@@ -1,4 +1,7 @@
-﻿using InvestmentResearch.Model;
+﻿using Humanizer;
+using InvestmentResearch.Model;
+using Mscc.GenerativeAI.Types;
+using System.Security.Cryptography;
 
 namespace InvestmentResearch.Service
 {
@@ -10,14 +13,15 @@ namespace InvestmentResearch.Service
         {
             int i = 0;
             _domains.Add(new Domain { Name = "scanx.trade", ReadableName = "ScanX Trade", Rank = ++i });
-            _domains.Add(new Domain { Name = "livemint", ReadableName = "Live mint", Rank = ++i });
-            _domains.Add(new Domain { Name = "moneycontrol", ReadableName = "Money control", Rank = ++i });
-            _domains.Add(new Domain { Name = "timesofindia", ReadableName = "Times of India", Rank = ++i });
-            _domains.Add(new Domain { Name = "reuters", ReadableName = "Reuters", Rank = ++i });
-            _domains.Add(new Domain { Name = "economictimes", ReadableName = "Economic Times", Rank = ++i });
+            _domains.Add(new Domain { Name = "livemint.com", ReadableName = "Live mint", Rank = ++i });
+            _domains.Add(new Domain { Name = "moneycontrol.com", ReadableName = "Money control", Rank = ++i });
+            _domains.Add(new Domain { Name = "timesofindia.com", ReadableName = "Times of India", Rank = ++i });
+            _domains.Add(new Domain { Name = "narendramodi.in", ReadableName = "Narendra Modi", Rank = ++i });
+            _domains.Add(new Domain { Name = "reuters.com", ReadableName = "Reuters", Rank = ++i });
+            _domains.Add(new Domain { Name = "economictimes.com", ReadableName = "Economic Times", Rank = ++i });
             _domains.Add(new Domain { Name = "ndtvprofit.com", ReadableName = "NDTV Profit", Rank = ++i });
-            _domains.Add(new Domain { Name = "cnbc", ReadableName = "CNBC", Rank = ++i });
-            _domains.Add(new Domain { Name = "cnbctv18", ReadableName = "CNBC-TV18", Rank = ++i });
+            _domains.Add(new Domain { Name = "cnbc.com", ReadableName = "CNBC", Rank = ++i });
+            _domains.Add(new Domain { Name = "cnbctv18.com", ReadableName = "CNBC-TV18", Rank = ++i });
             _domains.Add(new Domain { Name = "ddindia.co.in", ReadableName = "DD India", Rank = ++i });
             _domains.Add(new Domain { Name = "thehindubusinessline", ReadableName = "The Hindu Business Line", Rank = ++i });
             _domains.Add(new Domain { Name = "financialexpress", ReadableName = "Financial Express", Rank = ++i });
@@ -28,6 +32,13 @@ namespace InvestmentResearch.Service
             _domains.Add(new Domain { Name = "indiatoday.in", ReadableName = "India Today", Rank = ++i });
             _domains.Add(new Domain { Name = "firstpost.com", ReadableName = "Firstpost", Rank = ++i });
             _domains.Add(new Domain { Name = "defence.in", ReadableName = "Defence India", Rank = ++i });
+            _domains.Add(new Domain { Name = "chemicals.economictimes.indiatimes.com", ReadableName = "Economic Times - Chemicals", Rank = ++i });
+            _domains.Add(new Domain { Name = "economictimes.indiatimes.com", ReadableName = "Economic Times", Rank = ++i });
+            _domains.Add(new Domain { Name = "auto.economictimes.indiatimes.com", ReadableName = "Economic Times - Auto", Rank = ++i });
+            _domains.Add(new Domain { Name = "cio.economictimes.indiatimes.com", ReadableName = "Economic Times - CIO", Rank = ++i });
+            _domains.Add(new Domain { Name = "manufacturing.economictimes.indiatimes.com", ReadableName = "Economic Times - Manufacturing", Rank = ++i });
+            _domains.Add(new Domain { Name = "energy.economictimes.indiatimes.com", ReadableName = "Economic Times - Energy", Rank = ++i });
+            _domains.Add(new Domain { Name = "timesofindia.indiatimes.com", ReadableName = "Times of India", Rank = ++i });
             _domains.Add(new Domain { Name = "upstox.com", ReadableName = "Upstox", Rank = ++i });
             _domains.Add(new Domain { Name = "equitymaster.com", ReadableName = "Equity Master", Rank = ++i });
             _domains.Add(new Domain { Name = "indiatvnews.com", ReadableName = "India TV News", Rank = ++i });
@@ -41,6 +52,7 @@ namespace InvestmentResearch.Service
             _domains.Add(new Domain { Name = "ng.investing.com", ReadableName = "Investing.com", Rank = ++i });
             _domains.Add(new Domain { Name = "businesstoday.in", ReadableName = "Business Today", Rank = ++i });
             _domains.Add(new Domain { Name = "hindustantimes.com", ReadableName = "Hindustan Times", Rank = ++i });
+            _domains.Add(new Domain { Name = "ddnews.gov.in", ReadableName = "DD News", Rank = ++i });
             _domains.Add(new Domain { Name = "saurenergy.com", ReadableName = "Saur Energy", Rank = ++i });
             _domains.Add(new Domain { Name = "youtube.com", ReadableName = "YouTube", Rank = ++i });
             _domains.Add(new Domain { Name = "mondaq.com", ReadableName = "Mondaq", Rank = ++i });
@@ -165,21 +177,112 @@ namespace InvestmentResearch.Service
             _domains.Add(new Domain { Name = "frontline.thehindu.com", ReadableName = "Frontline The Hindu", Rank = ++i });
             _domains.Add(new Domain { Name = "alchempro.com", ReadableName = "Alchempro", Rank = ++i });
             _domains.Add(new Domain { Name = "kashmirvision.in", ReadableName = "Kashmir Vision", Rank = ++i });
-            _domains.Add(new Domain { Name = "bangaloremirror.indiatimes.com", ReadableName = "Bangalore Mirror", Rank = ++i });
             _domains.Add(new Domain { Name = "lovin.co", ReadableName = "Lovin", Rank = ++i });
             _domains.Add(new Domain { Name = "knocksense.com", ReadableName = "Knocksense", Rank = ++i });
+            _domains.Add(new Domain { Name = "telecompaper.com", ReadableName = "Telecompaper", Rank = ++i });
+            _domains.Add(new Domain { Name = "streetinsider.com", ReadableName = "Street Insider", Rank = ++i });
+            _domains.Add(new Domain { Name = "pressreader.com", ReadableName = "Press Reader", Rank = ++i });
+            _domains.Add(new Domain { Name = "chinimandi.com", ReadableName = "Chini Mandi", Rank = ++i });
+            _domains.Add(new Domain { Name = "manoramayearbook.in", ReadableName = "Manorama Yearbook", Rank = ++i });
+            _domains.Add(new Domain { Name = "indiashippingnews.com", ReadableName = "India Shipping News", Rank = ++i });
+            _domains.Add(new Domain { Name = "powerline.net.in", ReadableName = "Power Line", Rank = ++i });
+            _domains.Add(new Domain { Name = "dailypioneer.com", ReadableName = "Daily Pioneer", Rank = ++i });
+            _domains.Add(new Domain { Name = "globalgovernancenews.com", ReadableName = "Global Governance News", Rank = ++i });
+            _domains.Add(new Domain { Name = "crosstownnews.in", ReadableName = "Crosstown News", Rank = ++i });
+            _domains.Add(new Domain { Name = "blog.mygov.in", ReadableName = "MyGov Blog", Rank = ++i });
+            _domains.Add(new Domain { Name = "aviationworld.in", ReadableName = "Aviation World", Rank = ++i });
+            _domains.Add(new Domain { Name = "orissadiary.com", ReadableName = "Orissa Diary", Rank = ++i });
+            _domains.Add(new Domain { Name = "newsage.in", ReadableName = "News Age", Rank = ++i });
+            _domains.Add(new Domain { Name = "bureaucratsindia.in", ReadableName = "Bureaucrats India", Rank = ++i });
+            _domains.Add(new Domain { Name = "newsarenaindia.com", ReadableName = "News Arena India", Rank = ++i });
+            _domains.Add(new Domain { Name = "therahnuma.com", ReadableName = "The Rahnuma", Rank = ++i });
+            _domains.Add(new Domain { Name = "newsdrum.in", ReadableName = "News Drum", Rank = ++i });
+            _domains.Add(new Domain { Name = "travelbizmonitor.com", ReadableName = "Travel Biz Monitor", Rank = ++i });
+            _domains.Add(new Domain { Name = "thenewsminute.com", ReadableName = "The News Minute", Rank = ++i });
+            _domains.Add(new Domain { Name = "timesnownews.com", ReadableName = "Times Now News", Rank = ++i });
+            _domains.Add(new Domain { Name = "ianslive.in", ReadableName = "IANS Live", Rank = ++i });
+            _domains.Add(new Domain { Name = "english.varthabharati.in", ReadableName = "Vartha Bharati", Rank = ++i });
+            _domains.Add(new Domain { Name = "guwahatiplus.com", ReadableName = "Guwahati Plus", Rank = ++i });
+            _domains.Add(new Domain { Name = "ptcnews.tv", ReadableName = "PTC News", Rank = ++i });
+            _domains.Add(new Domain { Name = "kashmirnewsobserver.com", ReadableName = "Kashmir News Observer", Rank = ++i });
+            _domains.Add(new Domain { Name = "bhaskarenglish.in", ReadableName = "Bhaskar English", Rank = ++i });
+            _domains.Add(new Domain { Name = "htsyndication.com", ReadableName = "HT Syndication", Rank = ++i });
+            _domains.Add(new Domain { Name = "hubnetwork.in", ReadableName = "Hub Network", Rank = ++i });
+            _domains.Add(new Domain { Name = "varindia.com", ReadableName = "VAR India", Rank = ++i });
+            _domains.Add(new Domain { Name = "drishtiias.com", ReadableName = "Drishti IAS", Rank = ++i });
+            _domains.Add(new Domain { Name = "caravanmagazine.in", ReadableName = "Caravan Magazine", Rank = ++i });
+            _domains.Add(new Domain { Name = "techobserver.in", ReadableName = "Tech Observer", Rank = ++i });
+            _domains.Add(new Domain { Name = "entrackr.com", ReadableName = "Entrackr", Rank = ++i });
+            _domains.Add(new Domain { Name = "newsonprojects.com", ReadableName = "News on Projects", Rank = ++i });
+            _domains.Add(new Domain { Name = "entrepreneurindia.com", ReadableName = "Entrepreneur India", Rank = ++i });
+            _domains.Add(new Domain { Name = "autocarpro.in", ReadableName = "Autocar Pro", Rank = ++i });
+            _domains.Add(new Domain { Name = "businessnewsweek.in", ReadableName = "Business News Week", Rank = ++i });
+            _domains.Add(new Domain { Name = "ibef.org", ReadableName = "IBEF", Rank = ++i });
+            _domains.Add(new Domain { Name = "jharkhandstatenews.com", ReadableName = "Jharkhand State News", Rank = ++i });
+            _domains.Add(new Domain { Name = "biginfo.in", ReadableName = "Big Info", Rank = ++i });
+            _domains.Add(new Domain { Name = "policyedge.in", ReadableName = "Policy Edge", Rank = ++i });
+            _domains.Add(new Domain { Name = "odishatv.in", ReadableName = "Odisha TV", Rank = ++i });
+            _domains.Add(new Domain { Name = "argusenglish.in", ReadableName = "Argus English", Rank = ++i });
+            _domains.Add(new Domain { Name = "siliconindia.com", ReadableName = "Silicon India", Rank = ++i });
+            _domains.Add(new Domain { Name = "chemanalyst.com", ReadableName = "Chem Analyst", Rank = ++i });
+            _domains.Add(new Domain { Name = "thequint.com", ReadableName = "The Quint", Rank = ++i });
+            _domains.Add(new Domain { Name = "itvoice.in", ReadableName = "IT Voice", Rank = ++i });
+            _domains.Add(new Domain { Name = "expresscomputer.in", ReadableName = "Express Computer", Rank = ++i });
+            _domains.Add(new Domain { Name = "kalingatv.com", ReadableName = "Kalinga TV", Rank = ++i });
+            _domains.Add(new Domain { Name = "thesentimes.com", ReadableName = "The Sentimes", Rank = ++i });
+            _domains.Add(new Domain { Name = "mea.gov.in", ReadableName = "MEA", Rank = ++i });
+            _domains.Add(new Domain { Name = "businessnewsthisweek.com", ReadableName = "Business News This Week", Rank = ++i });
+            _domains.Add(new Domain { Name = "indiatodayne.in", ReadableName = "India Today NE", Rank = ++i });
+            _domains.Add(new Domain { Name = "in.ign.com", ReadableName = "IGN India", Rank = ++i });
+            _domains.Add(new Domain { Name = "crictoday.com", ReadableName = "Cric Today", Rank = ++i });
+            _domains.Add(new Domain { Name = "the420.in", ReadableName = "The 420", Rank = ++i });
+            _domains.Add(new Domain { Name = "jagranjosh.com", ReadableName = "Jagran Josh", Rank = ++i });
+            _domains.Add(new Domain { Name = "indiaipo.in", ReadableName = "India IPO", Rank = ++i });
+            _domains.Add(new Domain { Name = "mid - day.com", ReadableName = "Mid Day", Rank = ++i });
+            _domains.Add(new Domain { Name = "etnownews.com", ReadableName = "ET Now News", Rank = ++i });
+            _domains.Add(new Domain { Name = "psuwatch.com", ReadableName = "PSU Watch", Rank = ++i });
+            _domains.Add(new Domain { Name = "thebridgechronicle.com", ReadableName = "The Bridge Chronicle", Rank = ++i });
+            _domains.Add(new Domain { Name = "inkl.com", ReadableName = "INKL", Rank = ++i });
+            _domains.Add(new Domain { Name = "indiatechnologynews.in", ReadableName = "India Technology News", Rank = ++i });
+            _domains.Add(new Domain { Name = "univest.in", ReadableName = "Univest", Rank = ++i });
+            _domains.Add(new Domain { Name = "fibre2fashion.com", ReadableName = "Fibre2Fashion", Rank = ++i });
+            _domains.Add(new Domain { Name = "tele.net.in", ReadableName = "Tele.net", Rank = ++i });
+            _domains.Add(new Domain { Name = "onlykashmir.in", ReadableName = "Only Kashmir", Rank = ++i });
+            _domains.Add(new Domain { Name = "earthnews.in", ReadableName = "Earth News", Rank = ++i });
+            _domains.Add(new Domain { Name = "cseindia.org", ReadableName = "CSE India", Rank = ++i });
+            _domains.Add(new Domain { Name = "polymerupdate.com", ReadableName = "Polymer Update", Rank = ++i });
+            _domains.Add(new Domain { Name = "verdictum.in", ReadableName = "Verdictum", Rank = ++i });
+            _domains.Add(new Domain { Name = "homegrown.co.in", ReadableName = "Homegrown", Rank = ++i });
+            _domains.Add(new Domain { Name = "indiasworld.in", ReadableName = "India's World", Rank = ++i });
+            _domains.Add(new Domain { Name = "idsa.in", ReadableName = "IDSA", Rank = ++i });
+            _domains.Add(new Domain { Name = "newsgram.com", ReadableName = "News Gram", Rank = ++i });
+            _domains.Add(new Domain { Name = "medicaldialogues.in", ReadableName = "Medical Dialogues", Rank = ++i });
+            _domains.Add(new Domain { Name = "bangaloremirror.indiatimes.com", ReadableName = "Bangalore Mirror", Rank = ++i });
+
+            _domains.Add(new Domain { Name = "bwpeople.in", ReadableName = "BW People", Rank = ++i });
+            _domains.Add(new Domain { Name = "northeasttoday.in", ReadableName = "North East Today", Rank = ++i });
+            _domains.Add(new Domain { Name = "scconline.com", ReadableName = "SCC Online", Rank = ++i });
+            _domains.Add(new Domain { Name = "fnbnews.com", ReadableName = "FNB News", Rank = ++i });
+            _domains.Add(new Domain { Name = "news.webindia123.com", ReadableName = "Web India 123", Rank = ++i });
+            _domains.Add(new Domain { Name = "digitalterminal.in", ReadableName = "Digital Terminal", Rank = ++i });
+            _domains.Add(new Domain { Name = "trak.in", ReadableName = "Trak.in", Rank = ++i });
+            _domains.Add(new Domain { Name = "thepackman.in", ReadableName = "The Packman", Rank = ++i });
+            _domains.Add(new Domain { Name = "thepamphlet.in", ReadableName = "The Pamphlet", Rank = ++i });
+            _domains.Add(new Domain { Name = "udayavani.com", ReadableName = "Udayavani", Rank = ++i });
+            _domains.Add(new Domain { Name = "iadb.in", ReadableName = "IADB", Rank = ++i });
+            _domains.Add(new Domain { Name = "goal.com", ReadableName = "Goal", Rank = ++i });
         }
 
         /// <summary>
         /// Extracts the domain name from the Href property.
         /// Examples: "https://timesofindia.com/..." → "Times of India"
         /// </summary>
-        public string ExtractDomain(string href)
+        public (string, string) ExtractDomain(string href)
         {
             ArgumentNullException.ThrowIfNull(href);
             if (string.IsNullOrEmpty(href))
             {
-                return "Unknown";
+                return ("Unknown", string.Empty);
             }
 
             try
@@ -191,7 +294,51 @@ namespace InvestmentResearch.Service
 
                 if (readableDomain != null)
                 {
-                    return readableDomain.ReadableName;
+                    return (readableDomain.ReadableName, string.Empty);
+                }
+                if (href.IndexOf(".com", StringComparison.OrdinalIgnoreCase) > -1)
+                {
+                    var domainName = href.Substring(0, href.IndexOf(".com", StringComparison.OrdinalIgnoreCase))
+                        .Replace("https://www.", "")
+                        .Replace("http://www.", "")
+                        .Replace("www.", "") 
+                        .Replace("https://", "")
+                        .Replace("http://", "")
+                        + ".com";
+                    return ("Unknown- " + domainName, domainName);
+                }
+                else if (href.IndexOf(".in", StringComparison.OrdinalIgnoreCase) > -1)
+                {
+                    var domainName = href.Substring(0, href.IndexOf(".in", StringComparison.OrdinalIgnoreCase))
+                        .Replace("https://www.", "")
+                        .Replace("http://www.", "")
+                        .Replace("www.", "")
+                        .Replace("https://", "")
+                        .Replace("http://", "")
+                        + ".in";
+                    return ("Unknown- " + domainName, domainName);
+                }
+                else if (href.IndexOf(".org", StringComparison.OrdinalIgnoreCase) > -1)
+                {
+                    var domainName = href.Substring(0, href.IndexOf(".org", StringComparison.OrdinalIgnoreCase))
+                        .Replace("https://www.", "")
+                        .Replace("http://www.", "")
+                        .Replace("www.", "")
+                        .Replace("https://", "")
+                        .Replace("http://", "")
+                        + ".org";
+                    return ("Unknown- " + domainName, domainName);
+                }
+                else if (href.IndexOf(".net", StringComparison.OrdinalIgnoreCase) > -1)
+                {
+                    var domainName = href.Substring(0, href.IndexOf(".net", StringComparison.OrdinalIgnoreCase))
+                        .Replace("https://www.", "")
+                        .Replace("http://www.", "")
+                        .Replace("www.", "")
+                        .Replace("https://", "")
+                        .Replace("http://", "")
+                        + ".net";
+                    return ("Unknown- " + domainName, domainName);
                 }
 
                 // Get the domain name (second-to-last part before TLD)
@@ -199,20 +346,20 @@ namespace InvestmentResearch.Service
                 {
                     string domainName = hostParts[^2]; // Get second-to-last part
 
-                    return "Unknown" + System.Text.RegularExpressions.Regex.Replace(
+                    return ("Unknown" + System.Text.RegularExpressions.Regex.Replace(
                             domainName,
                             "(?<!^)(?=[A-Z])",
                             " "
-                        );
+                        ), string.Empty);
                 }
                 else
                 {
-                    return "Unknown" + uri.Host;
+                    return ("Unknown" + uri.Host, string.Empty);
                 }
             }
             catch
             {
-                return "Unknown";
+                return ("Unknown", string.Empty);
             }
         }
 

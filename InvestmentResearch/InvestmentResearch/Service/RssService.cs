@@ -10,6 +10,7 @@ public class RssService : IRssService
 {
     private readonly AppSettings _appSettings;
     private readonly IRSSLinkService _rSSLinkService;
+    private string _unknownDomain = string.Empty;
 
     public RssService(IRSSLinkService rSSLinkService,IOptions<AppSettings> appSettings)
     {
@@ -17,6 +18,10 @@ public class RssService : IRssService
         _rSSLinkService = rSSLinkService;
     }
 
+    public string GetUnknownDomains()
+    {
+        return _unknownDomain;
+    }
     public List<Link> GetFeedItems(string rssUrl, string alert, int maxItems) 
     {
         var links = new List<Link>();
@@ -38,12 +43,16 @@ public class RssService : IRssService
             foreach (XmlNode node in nodes)
             {
                 var link = ParseRssItem(node);
-                link.Domain = _rSSLinkService.ExtractDomain(link?.Href ?? string.Empty);
+                string noFounddomain = string.Empty;
+                (link.Domain, noFounddomain) = _rSSLinkService.ExtractDomain(link?.Href ?? string.Empty);
+                if (!string.IsNullOrWhiteSpace(noFounddomain))
+                {
+                    this._unknownDomain += "," + noFounddomain;
+                }
                 if (link != null 
                     && IsPublishedTodayOrYesterday(link.Published) 
                     && _appSettings.ExcludeDomain.IndexOf(link.Domain, StringComparison.OrdinalIgnoreCase) == -1)
                 {
-                    link.Domain = this._rSSLinkService.ExtractDomain(link.Href);
                     link.Theme = alert;
                     links.Add(link);
                     if (links.Count >= maxItems) break;
@@ -61,12 +70,16 @@ public class RssService : IRssService
             foreach (XmlNode node in nodes)
             {
                 var link = ParseAtomEntry(node, nsManager);
-                link.Domain = _rSSLinkService.ExtractDomain(link?.Href ?? string.Empty);
+                string noFounddomain = string.Empty;
+                (link.Domain, noFounddomain) = _rSSLinkService.ExtractDomain(link?.Href ?? string.Empty);
+                if (!string.IsNullOrWhiteSpace(noFounddomain))
+                {
+                    this._unknownDomain += "," + noFounddomain;
+                }
                 if (link != null 
                     && IsPublishedTodayOrYesterday(link.Published) 
                     && _appSettings.ExcludeDomain.IndexOf(link.Domain, StringComparison.OrdinalIgnoreCase) == -1)
                 {
-                    link.Domain = this._rSSLinkService.ExtractDomain(link.Href);
                     link.Theme = alert;
                     links.Add(link);
                     if (links.Count >= maxItems) break;

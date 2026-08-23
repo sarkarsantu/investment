@@ -6,5 +6,6 @@ namespace InvestmentResearch.Service
     {
         List<Link> ProcessFeed(RssFeedConfig feed, int maxArticlesPerFeed);
         List<Link> UpdateLinksBySLNo(List<Link> links);
+        string GetUnknownDomains();
     }
 }

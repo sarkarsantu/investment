@@ -1,7 +1,7 @@
 ﻿Follow these rules precisely:
 
 1. SEMANTIC DEDUPLICATION & RANKING LOGIC:
-   - Match by Meaning: Analyze "Title" and "Content" fields for conceptual equivalence. If two entries report on the exact same underlying factory launch, commercial tender win, pilot project milestone, or NGHM policy implementation, classify them as duplicate items.
+   - Match by Meaning: Analyze "Title" field for conceptual equivalence. If two entries report on the exact same underlying factory launch, commercial tender win, pilot project milestone, or NGHM policy implementation, classify them as duplicate items.
    - Group Identical Information: Group all items sharing the same core meaning together.
    - Assign Ranks: 
      - Generate a global counter starting at 1 for each distinct news event group.
@@ -16,4 +16,3 @@
 
 3. INPUT DATA:
 [Insert Your JSON Here]
-

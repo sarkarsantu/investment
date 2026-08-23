@@ -1,13 +1,12 @@
 ﻿Follow these rules precisely:
 
 1. RELEVANCE CLASSIFICATION LOGIC:
-   - Positive Matching: Scan the "Title" and "Content" fields. Set "IsRelevant" to true if either field contains terms or context relating to defense manufacturing companies, factory setups, defense procurement orders (MoD/MoU), defense electronics, indigenization (e.g., IdEX, Make in India defense), or military hardware contracts.
+   - Positive Matching: Scan the "Title" field. Set "IsRelevant" to true if either field contains terms or context relating to defense manufacturing companies, factory setups, defense procurement orders (MoD/MoU), defense electronics, indigenization (e.g., IdEX, Make in India defense), or military hardware contracts.
    - Negative Constraints (EXCLUSIONS): You MUST set "IsRelevant" to false for any of the following, even if military or defense keywords are mentioned:
      * General geopolitical analysis, foreign policy debates, diplomatic talks, or border tensions without a manufacturing or procurement focus.
      * Active combat/war reports, troop deployments, military exercises, or casualty news.
      * Commercial space exploration, civilian satellites, or generic weather/telecom satellites (Note: Keep it true ONLY if it explicitly specifies defense/military satellite production or military surveillance contracts).
      * Executive retirements, personal biographies, or general non-defense stock market roundups.
-   - Blank Field Handling: If the "Content" field is blank (""), judge relevance entirely based on the "Title" field using the rules above.
 
 2. OUTPUT FORMAT RULES:
    - Output ONLY the final, modified valid JSON array matching the exact incoming schema structure.

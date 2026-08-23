@@ -17,6 +17,7 @@ namespace InvestmentResearch.Service
         private readonly AppSettings _appSettings;
         private readonly IEmailService _emailService;
         private List<TrackBySector> _trackBySectors = new ();
+        private List<string> logs = new List<string>();
 
         public PipelineService(
             IRssFeedDatabaseService rssFeedDatabaseService,
@@ -39,14 +40,16 @@ namespace InvestmentResearch.Service
         public async Task RunRSSFeedAsync()
         {
             // Load RSS feeds from database
+            string log = string.Empty;
             var rssFeeds = await _rssFeedDatabaseService.GetAllFeedsAsync();
 
             if (rssFeeds == null || !rssFeeds.Any())
             {
-                Console.WriteLine("No RSS feeds configured in database.");
+                log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## No RSS feeds configured in database.";
+                Console.WriteLine(log);
+                logs.Add(log);
                 return;
             }
-            bool unknownDomainFound = false, unknownDomain = false;
             var sectors = rssFeeds.GroupBy(comparer => comparer.Theme)
                                   .Select(group => new { Key = group.Key, Feeds = group.ToList() })
                                   .ToList();
@@ -73,20 +76,25 @@ namespace InvestmentResearch.Service
                             LinkCount = 0,
                             FinalLinkCount = 0
                         };
-                        Console.WriteLine($"{sector.Key} :- {googleAlter.Name ?? string.Empty} is getting feed links.");
+                        log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## {sector.Key} :- {googleAlter.Name.Trim() ?? string.Empty} is getting feed links.";
+                        Console.WriteLine(log);
+                        logs.Add(log);
                         var resultLinks = _feedProcessorService.ProcessFeed(googleAlter, 20);
                         if (resultLinks != null && resultLinks.Count > 0)
                         {
-                            Console.WriteLine($"{sector.Key} :- {googleAlter.Name ?? string.Empty} finds {resultLinks.Count} links.");
+                            log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## {sector.Key} :- {googleAlter.Name.Trim() ?? string.Empty} finds {resultLinks.Count} links.";
+                            Console.WriteLine(log);
+                            logs.Add(log);
                             trackByGoogleAlert.LinkCount = resultLinks.Count;
                             trackBySector.LinkCount += trackByGoogleAlert.LinkCount;
-                            (trackByGoogleAlert.FinalLinkCount, unknownDomain, trackBySector.MaxRank) = await ProcesRSSFeed(sector.Key, resultLinks, googleAlter.Name);
-                            unknownDomainFound = unknownDomainFound || unknownDomain;
+                            (trackByGoogleAlert.FinalLinkCount, trackBySector.MaxRank) = await ProcesRSSFeed(sector.Key, resultLinks, googleAlter.Name);
                             trackBySector.FinalLinkCount += trackByGoogleAlert.FinalLinkCount;
                         }
                         else
                         {
-                            Console.WriteLine($"{sector.Key} :- {googleAlter.Name ?? string.Empty} does not find any links.");
+                            log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## {sector.Key} :- {googleAlter.Name.Trim() ?? string.Empty} does not find any links.";
+                            Console.WriteLine(log);
+                            logs.Add(log);
                         }
                         trackBySector.GoogleAlerts.Add(trackByGoogleAlert);
                     }
@@ -106,7 +114,9 @@ namespace InvestmentResearch.Service
                         var resultLinks = _feedProcessorService.ProcessFeed(googleAlter, 20);
                         if (resultLinks != null && resultLinks.Count > 0)
                         {
-                            Console.WriteLine($"{sector.Key} :- {googleAlter.Name ?? string.Empty} finds {resultLinks.Count} links.");
+                            log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## {sector.Key} :- {googleAlter.Name.Trim() ?? string.Empty} finds {resultLinks.Count.ToString()}.";
+                            Console.WriteLine(log);
+                            logs.Add(log);
                             trackByGoogleAlert.LinkCount = resultLinks.Count;
                             trackByGoogleAlert.FinalLinkCount = resultLinks.Count;
                             trackBySector.LinkCount += trackByGoogleAlert.LinkCount;
@@ -114,33 +124,38 @@ namespace InvestmentResearch.Service
                         }
                         else
                         {
-                            Console.WriteLine($"{sector.Key} :- {googleAlter.Name ?? string.Empty} does not find any links.");
+                            log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## {sector.Key} :- {googleAlter.Name.Trim() ?? string.Empty} does not find any links.";
+                            Console.WriteLine(log);
+                            logs.Add(log);
                         }
                         trackBySector.GoogleAlerts.Add(trackByGoogleAlert);
                     }
 
-                    (trackBySector.FinalLinkCount, unknownDomain, trackBySector.MaxRank) = await ProcesRSSFeed(sector.Key, links, null);
-                    unknownDomainFound = unknownDomainFound || unknownDomain;
+                    (trackBySector.FinalLinkCount, trackBySector.MaxRank) = await ProcesRSSFeed(sector.Key, links, null);
                     this._trackBySectors.Add(trackBySector);
                     links = new();
                 }
                 
             }
             // send the summary email after processing all sectors
-            await SendSummaryEmailAsync(unknownDomainFound);
+            await SendSummaryEmailAsync(_feedProcessorService.GetUnknownDomains());
         }
 
-        private async Task<(int, bool, int)> ProcesRSSFeed(string sector, List<Link> links, string? companyName = null)
+        private async Task<(int, int)> ProcesRSSFeed(string sector, List<Link> links, string? companyName = null)
         {
+            string log = string.Empty;
             if (links.Count == 0)
             {
-                Console.WriteLine($"{sector} :- {companyName ?? string.Empty} does not find any links.");
-                return (links.Count, false, 0);
+                log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## {sector} :- {companyName.Trim() ?? string.Empty} does not find any links.";
+                Console.WriteLine(log);
+                logs.Add(log);
+                return (links.Count, 0);
             }
-            bool unknownDomainFound = links.Any(link => string.IsNullOrWhiteSpace(link.Domain) || link.Domain.ToLower().IndexOf("unknown") != -1);
             links = this._feedProcessorService.UpdateLinksBySLNo(links);
 
-            Console.WriteLine($"{sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector : companyName)} is removing unrelated feed links");
+            log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## {sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector.Trim() : companyName.Trim())} is removing unrelated feed links.";
+            Console.WriteLine(log);
+            logs.Add(log);
             var modifiedLinks = await FilterModifiedLinks(
                     sector,
                     companyName,
@@ -149,15 +164,16 @@ namespace InvestmentResearch.Service
                     links);
             if (modifiedLinks == null || modifiedLinks?.Count == 0)
             {
-                return (modifiedLinks?.Count ?? 0, unknownDomainFound, 0);
+                return (modifiedLinks?.Count ?? 0, 0);
             }
 
-            var relevanceLink = modifiedLinks?.Where(p => p.IsRelevant = true);
+            var relevanceLink = modifiedLinks;
             if (relevanceLink == null || relevanceLink.Count() == 0)
             {
-                return (relevanceLink?.Count() ?? 0, unknownDomainFound, 0);
+                return (relevanceLink?.Count() ?? 0, 0);
             }
-            Console.WriteLine($"{sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector : companyName)} is marking duplicate feed links.");
+            log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## {sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector.Trim() : companyName.Trim())} is marking duplicate feed links.";
+            Console.WriteLine(log);
             var relevanceLinkWithRank = await FilterModifiedLinks(
                     sector,
                     companyName,
@@ -168,7 +184,7 @@ namespace InvestmentResearch.Service
             var finalLinks = relevanceLinkWithRank?.OrderBy(p => p.Rank);
             if (finalLinks == null || finalLinks.Count() == 0)
             {
-                return (finalLinks?.Count() ?? 0, unknownDomainFound, 0);
+                return (finalLinks?.Count() ?? 0, 0);
             }
             int maxRank = finalLinks.Max(p => p.Rank);
 
@@ -190,21 +206,28 @@ namespace InvestmentResearch.Service
 
                 try
                 {
-                    Console.WriteLine($"{sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector : companyName)} is sending {emailIndex + 1}/{totalEmails} sent with {emailLinks.Count} links.");
+                    log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## {sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector.Trim() : companyName)} is sending {emailIndex + 1}/{totalEmails} sent with {emailLinks.Count} links.";
+                    Console.WriteLine(log);
+                    logs.Add(log);
                     await _emailService.SendEmailAsync(targetEmail, subject, emailBody);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"{sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector : companyName)} fails to send email {emailIndex + 1} : {ex.Message}");
+                    log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## {sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector.Trim() : companyName)} fails to send email {emailIndex + 1} : {ex.Message}";
+                    Console.WriteLine(log);
+                    logs.Add(log);
                 }
             }
 
-            Console.WriteLine($"{sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector : companyName)} completes.");
-            return (finalLinksList?.Count ?? 0, unknownDomainFound, maxRank);
+            log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## {sector} :- {(string.IsNullOrWhiteSpace(companyName) ? sector.Trim() : companyName)} completes.";
+            Console.WriteLine(log);
+            logs.Add(log);
+            return (finalLinksList?.Count ?? 0, maxRank);
         }
 
         private async Task<List<Link>?> FilterModifiedLinks(string sectorName, string? companyName, string systemInstructionfileName, string userDatafileName, List<Link> links)
         {
+            string log = string.Empty;
             var options = new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
             var jsonContent = JsonSerializer.Serialize<List<Link>>(links, options);
             var systemInstruction = await this._fileHelper.GetPrompt(systemInstructionfileName, sectorName: sectorName, companyName: companyName, InputData: jsonContent);
@@ -217,7 +240,8 @@ namespace InvestmentResearch.Service
             }
             catch (JsonException ex)
             {
-                Console.WriteLine($"JSON deserialization failed. Payload: {jsonPayload.Substring(0, Math.Min(200, jsonPayload.Length))}...");
+                log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## JSON deserialization failed. Payload: {jsonPayload.Substring(0, Math.Min(200, jsonPayload.Length))}...";
+                Console.WriteLine(log);
                 return links;
             }
         }
@@ -284,26 +308,32 @@ namespace InvestmentResearch.Service
             Console.WriteLine("\nResearch completed successfully!");
         }
 
-        private async Task SendSummaryEmailAsync(bool unknownDomainFound)
+        private async Task SendSummaryEmailAsync(string UnknownDomains)
         {
+            string log = string.Empty;
             try
             {
                 if (_trackBySectors == null || _trackBySectors.Count == 0)
                 {
-                    Console.WriteLine("No sectors processed, skipping summary email.");
+                    log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## No sectors processed, skipping summary email.";
+                    logs.Add(log);
                     return;
                 }
 
-                string htmlBody = HtmlGenerator.GenerateSummarySectorHtml(_trackBySectors, unknownDomainFound);
+                string htmlBody = HtmlGenerator.GenerateSummarySectorHtml(_trackBySectors, UnknownDomains, logs);
                 string subject = $"Investment Research Summary - {DateTime.Now:yyyy-MM-dd}";
                 string targetEmail = "santusarkar.stockmarket@gmail.com";
 
                 await _emailService.SendEmailAsync(targetEmail, subject, htmlBody);
-                Console.WriteLine("Summary email sent successfully.");
+                log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## Summary email sent successfully.";
+                Console.WriteLine(log);
+                logs.Add(log);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to send summary email: {ex.Message}");
+                log = $"{TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt")} ## Failed to send summary email: {ex.Message}";  
+                Console.WriteLine(log);
+                logs.Add(log);
             }
         }
 
