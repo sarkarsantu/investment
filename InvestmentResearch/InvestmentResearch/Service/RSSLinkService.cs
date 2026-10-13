@@ -258,7 +258,6 @@ namespace InvestmentResearch.Service
             _domains.Add(new Domain { Name = "newsgram.com", ReadableName = "News Gram", Rank = ++i });
             _domains.Add(new Domain { Name = "medicaldialogues.in", ReadableName = "Medical Dialogues", Rank = ++i });
             _domains.Add(new Domain { Name = "bangaloremirror.indiatimes.com", ReadableName = "Bangalore Mirror", Rank = ++i });
-
             _domains.Add(new Domain { Name = "bwpeople.in", ReadableName = "BW People", Rank = ++i });
             _domains.Add(new Domain { Name = "northeasttoday.in", ReadableName = "North East Today", Rank = ++i });
             _domains.Add(new Domain { Name = "scconline.com", ReadableName = "SCC Online", Rank = ++i });
@@ -271,6 +270,17 @@ namespace InvestmentResearch.Service
             _domains.Add(new Domain { Name = "udayavani.com", ReadableName = "Udayavani", Rank = ++i });
             _domains.Add(new Domain { Name = "iadb.in", ReadableName = "IADB", Rank = ++i });
             _domains.Add(new Domain { Name = "goal.com", ReadableName = "Goal", Rank = ++i });
+            _domains.Add(new Domain { Name = "tatapower.com", ReadableName = "Tata Power", Rank = ++i });
+            _domains.Add(new Domain { Name = "ladakh.gov.in", ReadableName = "Ladakh Government", Rank = ++i });
+
+            _domains.Add(new Domain { Name = "biltraxmedia.com", ReadableName = "Biltrax Media", Rank = ++i });
+            _domains.Add(new Domain { Name = "motorindiaonline.in", ReadableName = "Motor India Online", Rank = ++i });
+            _domains.Add(new Domain { Name = "eetindia.co.in", ReadableName = "EET India", Rank = ++i });
+            _domains.Add(new Domain { Name = "officechai.com", ReadableName = "Office Chai", Rank = ++i });
+            _domains.Add(new Domain { Name = "indianprinterpublisher.com", ReadableName = "Indian Printer Publisher", Rank = ++i });
+            _domains.Add(new Domain { Name = "koimoi.com", ReadableName = "Koimoi", Rank = ++i });
+            _domains.Add(new Domain { Name = "revsportz.in", ReadableName = "Revsportz", Rank = ++i });
+            _domains.Add(new Domain { Name = "news24online.com", ReadableName = "News 24 Online", Rank = ++i });
         }
 
         /// <summary>

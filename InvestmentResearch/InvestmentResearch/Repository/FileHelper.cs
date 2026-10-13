@@ -1,6 +1,9 @@
-﻿using InvestmentResearch.Model;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using InvestmentResearch.Model;
 using InvestmentResearch.Service;
 using Microsoft.Extensions.Options;
+using System.Globalization;
 
 namespace InvestmentResearch.Repository
 {
@@ -70,6 +73,37 @@ namespace InvestmentResearch.Repository
                 Console.WriteLine($"  ✗ File not found: {promptFilePath}");
                 return string.Empty;
             }
+        }
+
+        public List<string> GetAllCompaniesFromDhan(string cvsFilePath)
+        {
+            List<string> companies = new List<string>();
+            // 1. Configure the reader settings
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HasHeaderRecord = true, // Set to false if the file has no headers
+            };
+
+            using var reader = new StreamReader(cvsFilePath);
+            using var csv = new CsvReader(reader, config);
+
+            // 2. Read records as dynamic objects
+            var records = csv.GetRecords<dynamic>();
+
+            foreach (var record in records)
+            {
+                // If you don't know the property names, you can cast it to a Dictionary
+                var dict = (IDictionary<string, object>)record;
+
+                companies.Add(dict["Name"].ToString()!);
+                //foreach (var keyValuePair in dict)
+                //{
+                //    Console.WriteLine($"{keyValuePair.Key}: {keyValuePair.Value}");
+                //}
+                //Console.WriteLine(new string('-', 20));
+            }
+
+            return companies;
         }
     }
 }

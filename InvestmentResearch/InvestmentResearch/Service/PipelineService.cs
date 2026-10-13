@@ -16,6 +16,8 @@ namespace InvestmentResearch.Service
         private readonly IFileHelper _fileHelper;
         private readonly AppSettings _appSettings;
         private readonly IEmailService _emailService;
+        private readonly IIPOProcessorService _ipoProcessorService;
+        private readonly ILoadCompaniesService _loadCompaniesService;
         private List<TrackBySector> _trackBySectors = new ();
         private List<string> logs = new List<string>();
 
@@ -26,7 +28,9 @@ namespace InvestmentResearch.Service
             IGeminiService geminiService,
             IFileHelper fileHelper,
             IOptions<AppSettings> appSettings,
-            IEmailService emailService)
+            IEmailService emailService,
+            IIPOProcessorService ipoProcessorService,
+            ILoadCompaniesService loadCompaniesService)
         {
             _rssFeedDatabaseService = rssFeedDatabaseService;
             _feedProcessorService = feedProcessorService;
@@ -35,6 +39,8 @@ namespace InvestmentResearch.Service
             _fileHelper = fileHelper;
             _appSettings = appSettings?.Value ?? throw new ArgumentNullException(nameof(appSettings));
             _emailService = emailService;
+            _ipoProcessorService = ipoProcessorService;
+            _loadCompaniesService = loadCompaniesService;
         }
 
         public async Task RunRSSFeedAsync()
@@ -232,7 +238,7 @@ namespace InvestmentResearch.Service
             var jsonContent = JsonSerializer.Serialize<List<Link>>(links, options);
             var systemInstruction = await this._fileHelper.GetPrompt(systemInstructionfileName, sectorName: sectorName, companyName: companyName, InputData: jsonContent);
             var userData = await this._fileHelper.GetPrompt(userDatafileName, sectorName: sectorName, companyName: companyName, InputData: jsonContent);
-            var jsonPayload = await _geminiService.RSSFeedAsync(systemInstruction: systemInstruction, userData: userData);
+            var jsonPayload = await _geminiService.GenerateContentAsync(systemInstruction: systemInstruction, userData: userData);
 
             try
             {
@@ -340,9 +346,15 @@ namespace InvestmentResearch.Service
 
         public async void RunAsync()
         {
-            await RunRSSFeedAsync();
+            //await RunRSSFeedAsync();
+            await _ipoProcessorService.ProcessOpenIPOsAsync();
+            await _loadCompaniesService.UpdateCompaniesFromDatabase(100);
 
             //await RunPromptAsync();
+            //_loadCompaniesService.LoadNSECompaniesFromDhan();
+            //_loadCompaniesService.LoadBSECompaniesFromDhan();
+
+
         }
     }
 }

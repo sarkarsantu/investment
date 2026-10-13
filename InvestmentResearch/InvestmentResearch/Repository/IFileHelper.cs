@@ -7,5 +7,6 @@
         Task FileSave(string fileName, string fileContent);
 
         Task<string> GetPrompt(string fileName, string sectorName = null!, string companyName = null!, string InputData = null!);
+        List<string> GetAllCompaniesFromDhan(string cvsFilePath);
     }
 }

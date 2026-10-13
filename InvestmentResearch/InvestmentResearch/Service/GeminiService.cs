@@ -71,7 +71,7 @@ namespace InvestmentResearch.Service
             }
         }
 
-        public async Task<string> RSSFeedAsync(string systemInstruction, string userData)
+        public async Task<string> GenerateContentAsync(string systemInstruction, string userData)
         {
             try 
             {
